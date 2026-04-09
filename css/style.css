@@ -1,0 +1,487 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-chag-bg: #1a3a6e;
+  --color-chag-text: #ffffff;
+  --color-rosh-chodesh: #0d7c66;
+  --color-parasha: #6b3fa0;
+  --color-today-border: #d4a000;
+  --color-shabbat-bg: #f5f0ff;
+  --color-header-bg: #1e2a3a;
+  --color-header-text: #ffffff;
+  --color-grid-border: #e0e0e0;
+  --color-day-hover: #f8f8f8;
+  --color-weekend-header: #6b3fa0;
+  --font: 'Heebo', 'Arial Hebrew', Arial, sans-serif;
+}
+
+html {
+  direction: rtl;
+  font-family: var(--font);
+  font-size: 16px;
+  background: #f4f6f9;
+  color: #222;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+
+.app-header {
+  background: var(--color-header-bg);
+  color: var(--color-header-text);
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#current-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-align: center;
+  flex: 1;
+}
+
+.nav-btn {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.nav-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.toggle-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.75);
+  padding: 5px 20px;
+  border-radius: 20px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.toggle-btn.active {
+  background: rgba(255,255,255,0.9);
+  color: var(--color-header-bg);
+  font-weight: 700;
+  border-color: transparent;
+}
+
+.toggle-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+/* ── App wrapper + sidebar ───────────────────────────── */
+
+#app-wrapper {
+  display: flex;
+  flex-direction: row;   /* RTL: sidebar on right, calendar on left */
+  flex: 1;
+  gap: 14px;
+  padding: 14px 16px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+#sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 14px;
+}
+
+.sidebar-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  padding: 14px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-header-bg);
+  border-bottom: 2px solid var(--color-header-bg);
+  padding-bottom: 6px;
+}
+
+.jump-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.jump-tab {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f5f5f5;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #555;
+}
+
+.jump-tab.active {
+  background: var(--color-header-bg);
+  color: #fff;
+  border-color: var(--color-header-bg);
+  font-weight: 700;
+}
+
+.jump-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jump-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.jump-label {
+  font-size: 0.72rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.jump-input,
+.jump-select,
+.jump-date-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  color: #222;
+  background: #fafafa;
+  transition: border-color 0.15s;
+  text-align: right;
+}
+
+.jump-input:focus,
+.jump-select:focus,
+.jump-date-input:focus {
+  outline: none;
+  border-color: var(--color-header-bg);
+  background: #fff;
+}
+
+.jump-date-input {
+  direction: ltr;
+  text-align: left;
+}
+
+.jump-go {
+  margin-top: 2px;
+  padding: 7px 0;
+  background: var(--color-header-bg);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.jump-go:hover {
+  opacity: 0.85;
+}
+
+.jump-error {
+  font-size: 0.72rem;
+  color: #c0392b;
+  min-height: 1rem;
+}
+
+/* ── Main container ──────────────────────────────────── */
+
+#app {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+/* ── Month View ──────────────────────────────────────── */
+
+.month-view {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #f0f0f0;
+}
+
+.day-header-cell {
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #555;
+  border-inline-end: 1px solid var(--color-grid-border);
+}
+
+.day-header-cell:last-child {
+  border-inline-end: none;
+}
+
+/* Shabbat column header */
+.day-header-cell:nth-child(7) {
+  color: var(--color-weekend-header);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-top: 1px solid var(--color-grid-border);
+}
+
+.day-cell {
+  min-height: 110px;
+  padding: 5px 6px 6px;
+  border-inline-end: 1px solid var(--color-grid-border);
+  border-bottom: 1px solid var(--color-grid-border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: default;
+  transition: background 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.day-cell:hover {
+  background: var(--color-day-hover);
+}
+
+/* Shabbat column — every 7th cell in the grid */
+.day-cell.col-shabbat {
+  background: var(--color-shabbat-bg);
+}
+
+.day-cell.col-shabbat:hover {
+  background: #ece6fa;
+}
+
+.day-cell.day-other-month {
+  opacity: 0.3;
+}
+
+.day-cell.day-today .day-date-row {
+  background: var(--color-today-border);
+  border-radius: 4px;
+  color: #fff;
+}
+
+.day-cell.day-today .greg-num,
+.day-cell.day-today .heb-date {
+  color: #fff;
+}
+
+/* Date row inside each cell */
+.day-date-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 2px 3px;
+  gap: 4px;
+}
+
+.heb-date {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+}
+
+.greg-num {
+  font-size: 0.7rem;
+  color: #999;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+/* Event badges */
+.ev-badge {
+  display: block;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.ev-chag {
+  background: var(--color-chag-bg);
+  color: var(--color-chag-text);
+}
+
+.ev-rosh-chodesh {
+  border-inline-start: 3px solid var(--color-rosh-chodesh);
+  color: var(--color-rosh-chodesh);
+  padding-inline-start: 4px;
+  background: #e6f7f4;
+}
+
+.ev-parasha {
+  color: var(--color-parasha);
+  background: #f3eeff;
+}
+
+.ev-fast {
+  color: #5a6e8a;
+  font-style: italic;
+}
+
+.ev-modern {
+  color: #c75c00;
+}
+
+.ev-special-shabbat {
+  color: #3a4aa0;
+}
+
+.ev-more {
+  font-size: 0.62rem;
+  color: #999;
+  padding: 1px 4px;
+}
+
+/* ── Same-combination matches ────────────────────────── */
+
+.matches-section {
+  margin-top: 5px;
+  border-top: 1px solid #e8e8e8;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.match-group-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #bbb;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 0 1px;
+}
+
+.match-item {
+  font-size: 0.62rem;
+  line-height: 1.5;
+  padding: 1px 3px;
+  border-radius: 2px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.match-past {
+  color: #888;
+}
+
+.match-future {
+  color: #0a6b58;
+  font-weight: 500;
+}
+
+.match-sep {
+  margin: 3px 0 2px;
+  border-top: 1px dashed #e0e0e0;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 750px) {
+  #app-wrapper {
+    flex-direction: column;
+    padding: 8px;
+  }
+
+  #sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .year-view {
+    grid-template-columns: 1fr;
+  }
+
+  .day-cell {
+    min-height: 70px;
+    padding: 3px;
+  }
+
+  .ev-badge {
+    font-size: 0.6rem;
+    padding: 1px 2px;
+  }
+
+  .matches-section {
+    display: none;
+  }
+
+  #app {
+    padding: 6px;
+  }
+}

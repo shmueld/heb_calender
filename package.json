@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@hebcal/core": "^6.0.8"
+  }
+}
