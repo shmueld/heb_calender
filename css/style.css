@@ -142,12 +142,40 @@ body {
 }
 
 .sidebar-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-header-bg);
   border-bottom: 2px solid var(--color-header-bg);
   padding-bottom: 6px;
+  background: none;
+  border-top: none;
+  border-inline: none;
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: right;
 }
+
+.sidebar-arrow {
+  font-size: 0.65rem;
+  transition: transform 0.2s;
+}
+
+.sidebar-title[aria-expanded="true"] .sidebar-arrow {
+  transform: rotate(180deg);
+}
+
+#sidebar-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+#sidebar-body[hidden] { display: none; }
 
 .jump-tabs {
   display: flex;
@@ -448,6 +476,77 @@ body {
   border-top: 1px dashed #e0e0e0;
 }
 
+/* ── Mobile detail panel ─────────────────────────────── */
+
+/* matches-section hidden below 1900px — use detail panel instead */
+@media (max-width: 1899px) {
+  .matches-section { display: none; }
+  .day-cell:not(.day-other-month) { cursor: pointer; }
+}
+
+/* detail panel hidden at 1900px+ — matches shown inline in cells */
+@media (min-width: 1900px) {
+  .day-detail-panel { display: none !important; }
+}
+
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--color-header-bg);
+}
+
+.detail-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-header-bg);
+  line-height: 1.3;
+}
+
+.detail-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #aaa;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.detail-close:hover { color: #333; }
+
+.detail-group-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #bbb;
+  letter-spacing: 0.05em;
+  margin: 10px 0 4px;
+}
+
+.detail-match {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  padding: 1px 0;
+}
+
+.detail-past  { color: #666; }
+.detail-future { color: #0a6b58; font-weight: 600; }
+
+.detail-sep {
+  border-top: 1px dashed #e0e0e0;
+  margin: 8px 0;
+}
+
+.detail-empty {
+  font-size: 0.85rem;
+  color: #999;
+  padding: 6px 0;
+}
+
 /* ── Responsive ─────────────────────────────────────── */
 
 @media (max-width: 750px) {
@@ -463,8 +562,23 @@ body {
 }
 
 @media (max-width: 600px) {
-  .year-view {
-    grid-template-columns: 1fr;
+  /* Show detail panel below calendar on tap */
+  .day-detail-panel:not([hidden]) {
+    display: block;
+    margin-top: 10px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  }
+
+  /* Tappable cells */
+  .day-cell:not(.day-other-month) { cursor: pointer; }
+
+  .day-cell.day-selected {
+    outline: 2px solid var(--color-today-border);
+    outline-offset: -2px;
+    background: #fffbe6 !important;
   }
 
   .day-cell {

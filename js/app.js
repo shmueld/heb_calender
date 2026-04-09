@@ -166,5 +166,15 @@ document.getElementById('btn-go-greg').addEventListener('click', () => {
   render();
 });
 
+// Collapsible sidebar
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarBody   = document.getElementById('sidebar-body');
+
+sidebarToggle.addEventListener('click', () => {
+  const open = sidebarBody.hidden;
+  sidebarBody.hidden = !open;
+  sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+
 initSidebar();
 render();

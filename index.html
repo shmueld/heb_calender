@@ -24,35 +24,40 @@
     <!-- ── Sidebar (right in RTL) ── -->
     <aside id="sidebar">
       <div class="sidebar-card">
-        <div class="sidebar-title">קפיצה לתאריך</div>
+        <button class="sidebar-title" id="sidebar-toggle" aria-expanded="false">
+          קפיצה לתאריך
+          <span class="sidebar-arrow">&#9660;</span>
+        </button>
 
-        <div class="jump-tabs">
-          <button class="jump-tab active" id="tab-heb">עברי</button>
-          <button class="jump-tab" id="tab-greg">לועזי</button>
-        </div>
+        <div id="sidebar-body" hidden>
+          <div class="jump-tabs">
+            <button class="jump-tab active" id="tab-heb">עברי</button>
+            <button class="jump-tab" id="tab-greg">לועזי</button>
+          </div>
 
-        <!-- Hebrew date form -->
-        <div id="form-heb" class="jump-form">
-          <div class="jump-row">
-            <label class="jump-label" for="jh-year">שנה</label>
-            <input type="number" id="jh-year" class="jump-input" min="5600" max="6000">
+          <!-- Hebrew date form -->
+          <div id="form-heb" class="jump-form">
+            <div class="jump-row">
+              <label class="jump-label" for="jh-year">שנה</label>
+              <input type="number" id="jh-year" class="jump-input" min="5600" max="6000">
+            </div>
+            <div class="jump-row">
+              <label class="jump-label" for="jh-month">חודש</label>
+              <select id="jh-month" class="jump-select"></select>
+            </div>
+            <div class="jump-row">
+              <label class="jump-label" for="jh-day">יום</label>
+              <input type="number" id="jh-day" class="jump-input" min="1" max="30" value="1">
+            </div>
+            <button id="btn-go-heb" class="jump-go">עבור</button>
+            <div id="jh-error" class="jump-error"></div>
           </div>
-          <div class="jump-row">
-            <label class="jump-label" for="jh-month">חודש</label>
-            <select id="jh-month" class="jump-select"></select>
-          </div>
-          <div class="jump-row">
-            <label class="jump-label" for="jh-day">יום</label>
-            <input type="number" id="jh-day" class="jump-input" min="1" max="30" value="1">
-          </div>
-          <button id="btn-go-heb" class="jump-go">עבור</button>
-          <div id="jh-error" class="jump-error"></div>
-        </div>
 
-        <!-- Gregorian date form -->
-        <div id="form-greg" class="jump-form" hidden>
-          <input type="date" id="jg-date" class="jump-date-input">
-          <button id="btn-go-greg" class="jump-go">עבור</button>
+          <!-- Gregorian date form -->
+          <div id="form-greg" class="jump-form" hidden>
+            <input type="date" id="jg-date" class="jump-date-input">
+            <button id="btn-go-greg" class="jump-go">עבור</button>
+          </div>
         </div>
       </div>
     </aside>
