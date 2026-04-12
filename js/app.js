@@ -116,6 +116,16 @@ function navigateYear(delta) {
   render();
 }
 
+titleEl.addEventListener('click', () => {
+  const today    = new HDate(new Date());
+  const todayGreg = gregFromHeb(today.getFullYear(), today.getMonth());
+  state.hebrewYear  = today.getFullYear();
+  state.hebrewMonth = today.getMonth();
+  state.gregYear    = todayGreg.gregYear;
+  state.gregMonth   = todayGreg.gregMonth;
+  render();
+});
+
 btnPrev.addEventListener('click', () => navigate(-1));
 btnNext.addEventListener('click', () => navigate(1));
 btnPrevYear.addEventListener('click', () => navigateYear(-1));

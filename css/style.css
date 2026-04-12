@@ -58,6 +58,14 @@ body {
   letter-spacing: 0.02em;
   text-align: center;
   flex: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 4px 8px;
+  transition: background 0.15s;
+}
+
+#current-title:hover {
+  background: rgba(255,255,255,0.12);
 }
 
 .nav-btn {
