@@ -43,41 +43,19 @@ function createDayCell(day, isToday) {
   }
 
   // Same-combination matches (desktop — shown inline)
-  if (!day.isOtherMonth && day.matches &&
-      (day.matches.past.length > 0 || day.matches.future.length > 0)) {
+  const hasOtherMatches = !day.isOtherMonth && day.matches &&
+    day.matches.some(m => !m.isCurrent);
+  if (hasOtherMatches) {
     const section = document.createElement('div');
     section.className = 'matches-section';
 
-    if (day.matches.past.length > 0) {
-      const lbl = document.createElement('div');
-      lbl.className = 'match-group-label';
-      lbl.textContent = 'היה';
-      section.appendChild(lbl);
-      for (const m of day.matches.past) {
-        const el = document.createElement('div');
-        el.className = 'match-item match-past';
-        el.textContent = m.label;
-        section.appendChild(el);
-      }
-    }
-
-    if (day.matches.past.length > 0 && day.matches.future.length > 0) {
-      const sep = document.createElement('div');
-      sep.className = 'match-sep';
-      section.appendChild(sep);
-    }
-
-    if (day.matches.future.length > 0) {
-      const lbl = document.createElement('div');
-      lbl.className = 'match-group-label';
-      lbl.textContent = 'יהיה';
-      section.appendChild(lbl);
-      for (const m of day.matches.future) {
-        const el = document.createElement('div');
-        el.className = 'match-item match-future';
-        el.textContent = m.label;
-        section.appendChild(el);
-      }
+    for (const m of day.matches) {
+      const el = document.createElement('div');
+      el.className = m.isCurrent  ? 'match-item match-current'
+                   : m.isPast     ? 'match-item match-past'
+                                  : 'match-item match-future';
+      el.textContent = m.label;
+      section.appendChild(el);
     }
 
     cell.appendChild(section);
@@ -109,9 +87,10 @@ function populateDetailPanel(panel, day, onClose) {
   header.append(title, closeBtn);
   panel.appendChild(header);
 
-  const { past = [], future = [] } = day.matches || {};
+  const matches = day.matches || [];
+  const hasOther = matches.some(m => !m.isCurrent);
 
-  if (past.length === 0 && future.length === 0) {
+  if (!hasOther) {
     const empty = document.createElement('div');
     empty.className = 'detail-empty';
     empty.textContent = 'לא נמצאו מופעים תואמים ב-100 השנים הסמוכות';
@@ -119,36 +98,13 @@ function populateDetailPanel(panel, day, onClose) {
     return;
   }
 
-  if (past.length > 0) {
-    const lbl = document.createElement('div');
-    lbl.className = 'detail-group-label';
-    lbl.textContent = 'היה';
-    panel.appendChild(lbl);
-    for (const m of past) {
-      const el = document.createElement('div');
-      el.className = 'detail-match detail-past';
-      el.textContent = m.label;
-      panel.appendChild(el);
-    }
-  }
-
-  if (past.length > 0 && future.length > 0) {
-    const sep = document.createElement('div');
-    sep.className = 'detail-sep';
-    panel.appendChild(sep);
-  }
-
-  if (future.length > 0) {
-    const lbl = document.createElement('div');
-    lbl.className = 'detail-group-label';
-    lbl.textContent = 'יהיה';
-    panel.appendChild(lbl);
-    for (const m of future) {
-      const el = document.createElement('div');
-      el.className = 'detail-match detail-future';
-      el.textContent = m.label;
-      panel.appendChild(el);
-    }
+  for (const m of matches) {
+    const el = document.createElement('div');
+    el.className = m.isCurrent ? 'detail-match detail-current'
+                 : m.isPast    ? 'detail-match detail-past'
+                               : 'detail-match detail-future';
+    el.textContent = m.label;
+    panel.appendChild(el);
   }
 }
 

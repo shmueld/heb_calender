@@ -484,6 +484,11 @@ body {
   font-weight: 500;
 }
 
+.match-current {
+  color: var(--color-today-border);
+  font-weight: 700;
+}
+
 .match-sep {
   margin: 3px 0 2px;
   border-top: 1px dashed #e0e0e0;
@@ -546,8 +551,9 @@ body {
   padding: 1px 0;
 }
 
-.detail-past  { color: #666; }
-.detail-future { color: #0a6b58; font-weight: 600; }
+.detail-past    { color: #666; }
+.detail-future  { color: #0a6b58; font-weight: 600; }
+.detail-current { color: var(--color-today-border); font-weight: 700; }
 
 .detail-sep {
   border-top: 1px dashed #e0e0e0;

@@ -43,13 +43,20 @@ function buildEventMap(hebcalEvents) {
 /**
  * For a given Hebrew day+month and Gregorian day+month, find all years
  * within ±100 Hebrew years where the same combination occurs.
- * The number in parentheses for each entry is the gap (in Gregorian years)
- * from the *previous* occurrence to *this* occurrence.
- * Returns { past: MatchItem[], future: MatchItem[] } sorted nearest-first.
+ * Returns a flat chronological array. Each item has:
+ *   label      — formatted string with optional gap in parentheses
+ *   isCurrent  — true for the displayed year (shown highlighted)
+ *   isPast     — true for years before the displayed year
  */
 function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGregYear, currentHebYear) {
-  // Collect all occurrences including the current year (which is always a match)
-  const allOccurrences = [{ hebYear: currentHebYear, gregYear: currentGregYear, date: null }];
+  const allOccurrences = [
+    {
+      hebYear:   currentHebYear,
+      gregYear:  currentGregYear,
+      date:      new HDate(hebDay, hebMonth, currentHebYear).greg(),
+      isCurrent: true,
+    },
+  ];
 
   for (let y = currentHebYear - 100; y <= currentHebYear + 100; y++) {
     if (y === currentHebYear) continue;
@@ -60,39 +67,27 @@ function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGre
     const cg   = cand.greg();
 
     if (cg.getDate() === gregDay && cg.getMonth() + 1 === gregMonthNum) {
-      allOccurrences.push({ hebYear: y, gregYear: cg.getFullYear(), date: cg });
+      allOccurrences.push({ hebYear: y, gregYear: cg.getFullYear(), date: cg, isCurrent: false });
     }
   }
 
-  // Sort chronologically so we can compute gap-from-previous for each entry
   allOccurrences.sort((a, b) => a.gregYear - b.gregYear);
 
-  const past = [], future = [];
-
-  for (let i = 0; i < allOccurrences.length; i++) {
-    const occ = allOccurrences[i];
-    if (occ.hebYear === currentHebYear) continue; // displayed day — skip but keep as anchor
-
+  return allOccurrences.map((occ, i) => {
     const prevOcc = i > 0 ? allOccurrences[i - 1] : null;
     const diff    = prevOcc !== null ? occ.gregYear - prevOcc.gregYear : null;
-
-    const cg  = occ.date;
-    const dd  = String(cg.getDate()).padStart(2, '0');
-    const mm  = String(cg.getMonth() + 1).padStart(2, '0');
+    const cg      = occ.date;
+    const dd      = String(cg.getDate()).padStart(2, '0');
+    const mm      = String(cg.getMonth() + 1).padStart(2, '0');
     const diffStr = diff !== null ? ` (${diff})` : '';
 
-    const item = {
-      hebYear: occ.hebYear,
+    return {
+      hebYear:   occ.hebYear,
+      isCurrent: occ.isCurrent,
+      isPast:    occ.hebYear < currentHebYear,
       label: `${gematriya(hebDay)} ${hebMonthName(hebMonth, occ.hebYear)} ${gematriya(occ.hebYear, { limit: true })} ${dd}/${mm}/${occ.gregYear}${diffStr}`,
     };
-
-    if (occ.hebYear < currentHebYear) past.push(item);
-    else future.push(item);
-  }
-
-  past.sort((a, b) => a.hebYear - b.hebYear);   // earliest first
-  future.sort((a, b) => a.hebYear - b.hebYear); // nearest future first
-  return { past, future };
+  });
 }
 
 /**
