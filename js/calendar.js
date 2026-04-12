@@ -43,10 +43,13 @@ function buildEventMap(hebcalEvents) {
 /**
  * For a given Hebrew day+month and Gregorian day+month, find all years
  * within ±100 Hebrew years where the same combination occurs.
+ * The number in parentheses for each entry is the gap (in Gregorian years)
+ * from the *previous* occurrence to *this* occurrence.
  * Returns { past: MatchItem[], future: MatchItem[] } sorted nearest-first.
  */
 function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGregYear, currentHebYear) {
-  const past = [], future = [];
+  // Collect all occurrences including the current year (which is always a match)
+  const allOccurrences = [{ hebYear: currentHebYear, gregYear: currentGregYear, date: null }];
 
   for (let y = currentHebYear - 100; y <= currentHebYear + 100; y++) {
     if (y === currentHebYear) continue;
@@ -57,20 +60,37 @@ function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGre
     const cg   = cand.greg();
 
     if (cg.getDate() === gregDay && cg.getMonth() + 1 === gregMonthNum) {
-      const candGregYear = cg.getFullYear();
-      const diff = Math.abs(candGregYear - currentGregYear);
-      const dd   = String(cg.getDate()).padStart(2, '0');
-      const mm   = String(cg.getMonth() + 1).padStart(2, '0');
-      const item = {
-        hebYear: y,
-        label: `${gematriya(hebDay)} ${hebMonthName(hebMonth, y)} ${gematriya(y, { limit: true })} ${dd}/${mm}/${candGregYear} (${diff} שנים)`,
-      };
-      if (y < currentHebYear) past.push(item);
-      else future.push(item);
+      allOccurrences.push({ hebYear: y, gregYear: cg.getFullYear(), date: cg });
     }
   }
 
-  past.sort((a, b) => b.hebYear - a.hebYear);   // nearest past first
+  // Sort chronologically so we can compute gap-from-previous for each entry
+  allOccurrences.sort((a, b) => a.gregYear - b.gregYear);
+
+  const past = [], future = [];
+
+  for (let i = 0; i < allOccurrences.length; i++) {
+    const occ = allOccurrences[i];
+    if (occ.hebYear === currentHebYear) continue; // displayed day — skip but keep as anchor
+
+    const prevOcc = i > 0 ? allOccurrences[i - 1] : null;
+    const diff    = prevOcc !== null ? occ.gregYear - prevOcc.gregYear : null;
+
+    const cg  = occ.date;
+    const dd  = String(cg.getDate()).padStart(2, '0');
+    const mm  = String(cg.getMonth() + 1).padStart(2, '0');
+    const diffStr = diff !== null ? ` (${diff})` : '';
+
+    const item = {
+      hebYear: occ.hebYear,
+      label: `${gematriya(hebDay)} ${hebMonthName(hebMonth, occ.hebYear)} ${gematriya(occ.hebYear, { limit: true })} ${dd}/${mm}/${occ.gregYear}${diffStr}`,
+    };
+
+    if (occ.hebYear < currentHebYear) past.push(item);
+    else future.push(item);
+  }
+
+  past.sort((a, b) => a.hebYear - b.hebYear);   // earliest first
   future.sort((a, b) => a.hebYear - b.hebYear); // nearest future first
   return { past, future };
 }
@@ -163,6 +183,40 @@ export function getMonthData(hebYear, hebMonth) {
   return { days };
 }
 
+
+const DOW_NAMES_HEB  = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const DOW_TO_LETTER  = ['א','ב','ג','ד','ה','ו','ז'];
+
+export function getYearInfo(hebYear) {
+  const roshHashana = new HDate(1, 7, hebYear);
+  const rhDow       = roshHashana.greg().getDay(); // 0=ראשון
+
+  const nextRH     = new HDate(1, 7, hebYear + 1);
+  const daysInYear = Math.round(
+    (nextRH.greg().getTime() - roshHashana.greg().getTime()) / 86_400_000
+  );
+
+  const isLeap       = HDate.isLeapYear(hebYear);
+  const regularDays  = isLeap ? 384 : 354;
+  const yearTypeChar =
+    daysInYear < regularDays ? 'ח' :
+    daysInYear > regularDays ? 'ש' : 'כ';
+  const yearTypeName =
+    daysInYear < regularDays ? 'חסרה' :
+    daysInYear > regularDays ? 'שלמה' : 'כסדרה';
+
+  const passover = new HDate(15, 1, hebYear);
+  const passDow  = passover.greg().getDay();
+
+  return {
+    typeCode:    DOW_TO_LETTER[rhDow] + yearTypeChar + DOW_TO_LETTER[passDow],
+    isLeap,
+    daysInYear,
+    yearTypeName,
+    rhDowName:   DOW_NAMES_HEB[rhDow],
+    passDowName: DOW_NAMES_HEB[passDow],
+  };
+}
 
 export function getHebrewMonthAndYearLabel(hebYear, hebMonth) {
   const monthName = hebMonthName(hebMonth, hebYear);

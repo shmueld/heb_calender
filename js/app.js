@@ -1,4 +1,4 @@
-import { getMonthData, getHebrewMonthAndYearLabel, monthsInYear } from './calendar.js';
+import { getMonthData, getHebrewMonthAndYearLabel, monthsInYear, getYearInfo } from './calendar.js';
 import { renderMonthView } from './monthView.js';
 
 const { HDate, HDate: { isLeapYear } } = window.hebcal;
@@ -29,10 +29,12 @@ const state = {
   gregMonth:   initGreg.gregMonth,
 };
 
-const appEl   = document.getElementById('app');
-const titleEl = document.getElementById('current-title');
-const btnPrev = document.getElementById('btn-prev');
-const btnNext = document.getElementById('btn-next');
+const appEl       = document.getElementById('app');
+const titleEl     = document.getElementById('current-title');
+const btnPrev     = document.getElementById('btn-prev');
+const btnNext     = document.getElementById('btn-next');
+const btnPrevYear = document.getElementById('btn-prev-year');
+const btnNextYear = document.getElementById('btn-next-year');
 
 function updateTitle() {
   const hebPart  = getHebrewMonthAndYearLabel(state.hebrewYear, state.hebrewMonth);
@@ -40,10 +42,44 @@ function updateTitle() {
   titleEl.textContent = `${hebPart} – ${gregPart}`;
 }
 
+const yearTypeSidebar = document.getElementById('year-type-sidebar');
+const yearTypeMobile  = document.getElementById('year-type-mobile');
+
+function fillYearTypeCard(el, info) {
+  el.innerHTML = '';
+
+  const title = document.createElement('div');
+  title.className = 'year-type-title';
+  title.textContent = 'קביעות השנה';
+
+  const code = document.createElement('div');
+  code.className = 'year-type-code';
+  code.textContent = info.typeCode;
+
+  const rows = [
+    `${info.isLeap ? 'שנת עיבור' : 'שנה פשוטה'} · ${info.yearTypeName} · ${info.daysInYear} ימים`,
+    `ראש השנה: יום ${info.rhDowName}`,
+    `פסח: יום ${info.passDowName}`,
+  ];
+
+  el.appendChild(title);
+  el.appendChild(code);
+  for (const text of rows) {
+    const d = document.createElement('div');
+    d.className = 'year-type-row';
+    d.textContent = text;
+    el.appendChild(d);
+  }
+}
+
 function render() {
   appEl.innerHTML = '';
   updateTitle();
   renderMonthView(appEl, getMonthData(state.hebrewYear, state.hebrewMonth));
+
+  const info = getYearInfo(state.hebrewYear);
+  fillYearTypeCard(yearTypeSidebar, info);
+  fillYearTypeCard(yearTypeMobile, info);
 }
 
 function navigate(delta) {
@@ -67,8 +103,23 @@ function navigate(delta) {
   render();
 }
 
+function navigateYear(delta) {
+  const targetYear = state.hebrewYear + delta;
+  const targetOrder = civilOrder(targetYear);
+  // Adar Bet (13) doesn't exist in a non-leap year — fall back to Adar (12)
+  const targetMonth = targetOrder.includes(state.hebrewMonth) ? state.hebrewMonth : 12;
+  state.hebrewYear  = targetYear;
+  state.hebrewMonth = targetMonth;
+  const g = gregFromHeb(state.hebrewYear, state.hebrewMonth);
+  state.gregYear  = g.gregYear;
+  state.gregMonth = g.gregMonth;
+  render();
+}
+
 btnPrev.addEventListener('click', () => navigate(-1));
 btnNext.addEventListener('click', () => navigate(1));
+btnPrevYear.addEventListener('click', () => navigateYear(-1));
+btnNextYear.addEventListener('click', () => navigateYear(1));
 
 // ── Sidebar: jump to date ─────────────────────────────
 
@@ -112,6 +163,12 @@ function initSidebar() {
   populateMonthSelect(state.hebrewYear);
   jhMonth.value = state.hebrewMonth;
   jhDay.value = 1;
+
+  // On wide screens the panel sits in a sidebar — keep it open
+  if (window.innerWidth > 750) {
+    sidebarBody.hidden = false;
+    sidebarToggle.setAttribute('aria-expanded', 'true');
+  }
 }
 
 jhYear.addEventListener('change', () => {

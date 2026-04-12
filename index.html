@@ -8,14 +8,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
+  <!-- IIFE bundle — sets window.hebcal synchronously before deferred module scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@hebcal/core@6/dist/bundle.min.js"></script>
 </head>
 <body>
   <header class="app-header">
     <div class="nav-bar">
-      <button class="nav-btn" id="btn-prev" aria-label="הקודם">&#8249;</button>
+      <button class="nav-btn nav-btn-year" id="btn-prev-year" aria-label="שנה קודמת">&#171; שנה קודמת</button>
+      <button class="nav-btn" id="btn-prev" aria-label="חודש קודם">&#8249; חודש קודם</button>
       <h1 id="current-title"></h1>
-      <button class="nav-btn" id="btn-next" aria-label="הבא">&#8250;</button>
+      <button class="nav-btn" id="btn-next" aria-label="חודש הבא">חודש הבא &#8250;</button>
+      <button class="nav-btn nav-btn-year" id="btn-next-year" aria-label="שנה הבאה">שנה הבאה &#187;</button>
     </div>
   </header>
 
@@ -23,6 +26,7 @@
 
     <!-- ── Sidebar (right in RTL) ── -->
     <aside id="sidebar">
+      <div id="year-type-sidebar" class="sidebar-card year-type-card"></div>
       <div class="sidebar-card">
         <button class="sidebar-title" id="sidebar-toggle" aria-expanded="false">
           קפיצה לתאריך
@@ -64,6 +68,9 @@
 
     <!-- ── Calendar (left in RTL) ── -->
     <main id="app"></main>
+
+    <!-- ── Year type (mobile only — below detail panel) ── -->
+    <div id="year-type-mobile" class="year-type-card"></div>
 
   </div>
 
