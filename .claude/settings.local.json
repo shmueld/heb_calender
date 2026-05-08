@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://cdn.jsdelivr.net/npm/@hebcal/core@6/\")"
+    ]
+  }
+}

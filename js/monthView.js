@@ -1,4 +1,4 @@
-const DAY_NAMES_HE = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const DAY_NAMES_HE = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 const MAX_BADGES = 3;
 
 function createDayCell(day, isToday) {
@@ -6,8 +6,8 @@ function createDayCell(day, isToday) {
   cell.className = 'day-cell';
 
   if (day.dayOfWeek === 6) cell.classList.add('col-shabbat');
-  if (day.isOtherMonth)   cell.classList.add('day-other-month');
-  if (isToday)            cell.classList.add('day-today');
+  if (day.isOtherMonth) cell.classList.add('day-other-month');
+  if (isToday) cell.classList.add('day-today');
 
   const dateRow = document.createElement('div');
   dateRow.className = 'day-date-row';
@@ -25,7 +25,7 @@ function createDayCell(day, isToday) {
 
   // Event badges
   const visible = day.events.slice(0, MAX_BADGES);
-  const hidden  = day.events.length - MAX_BADGES;
+  const hidden = day.events.length - MAX_BADGES;
 
   for (const ev of visible) {
     const badge = document.createElement('span');
@@ -51,9 +51,9 @@ function createDayCell(day, isToday) {
 
     for (const m of day.matches) {
       const el = document.createElement('div');
-      el.className = m.isCurrent  ? 'match-item match-current'
-                   : m.isPast     ? 'match-item match-past'
-                                  : 'match-item match-future';
+      el.className = m.isCurrent ? 'match-item match-current'
+        : m.isPast ? 'match-item match-past'
+          : 'match-item match-future';
       el.textContent = m.label;
       section.appendChild(el);
     }
@@ -73,8 +73,8 @@ function populateDetailPanel(panel, day, onClose) {
 
   const title = document.createElement('span');
   title.className = 'detail-title';
-  const dd   = String(day.gregDate.getDate()).padStart(2, '0');
-  const mm   = String(day.gregDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(day.gregDate.getDate()).padStart(2, '0');
+  const mm = String(day.gregDate.getMonth() + 1).padStart(2, '0');
   const yyyy = day.gregDate.getFullYear();
   title.textContent = `${day.hebLabel}  ·  ${dd}/${mm}/${yyyy}`;
 
@@ -95,16 +95,26 @@ function populateDetailPanel(panel, day, onClose) {
     empty.className = 'detail-empty';
     empty.textContent = 'לא נמצאו מופעים תואמים ב-100 השנים הסמוכות';
     panel.appendChild(empty);
-    return;
+  } else {
+    for (const m of matches) {
+      const el = document.createElement('div');
+      el.className = m.isCurrent ? 'detail-match detail-current'
+        : m.isPast ? 'detail-match detail-past'
+          : 'detail-match detail-future';
+      el.textContent = m.label;
+      panel.appendChild(el);
+    }
   }
 
-  for (const m of matches) {
-    const el = document.createElement('div');
-    el.className = m.isCurrent ? 'detail-match detail-current'
-                 : m.isPast    ? 'detail-match detail-past'
-                               : 'detail-match detail-future';
-    el.textContent = m.label;
-    panel.appendChild(el);
+  if (day.next10YearsWeekdays && day.next10YearsWeekdays.length > 0) {
+    const weekdaysDiv = document.createElement('div');
+    weekdaysDiv.className = 'detail-weekdays';
+    weekdaysDiv.style.marginTop = '16px';
+    weekdaysDiv.style.paddingTop = '12px';
+    weekdaysDiv.style.borderTop = '1px solid var(--border-color, #ccc)';
+    weekdaysDiv.style.fontWeight = '500';
+    weekdaysDiv.textContent = `ב-19 השנים הקרובות התאריך יחול בימים: ${day.next10YearsWeekdays.join(', ')}`;
+    panel.appendChild(weekdaysDiv);
   }
 }
 

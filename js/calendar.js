@@ -3,6 +3,22 @@
 
 const { HebrewCalendar, HDate, flags, gematriya, Locale } = window.hebcal;
 
+const DOW_NAMES_HEB = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+const DOW_TO_LETTER = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז'];
+
+function findNext10YearsWeekdays(hebDay, hebMonth, currentHebYear) {
+  const weekdays = new Set();
+  for (let y = currentHebYear + 1; y <= currentHebYear + 19; y++) {
+    if (hebMonth === 13 && !HDate.isLeapYear(y)) continue;
+    if (hebDay > HDate.daysInMonth(hebMonth, y)) continue;
+    const hd = new HDate(hebDay, hebMonth, y);
+    weekdays.add(hd.greg().getDay());
+  }
+  return Array.from(weekdays)
+    .sort((a, b) => a - b)
+    .map(dow => DOW_NAMES_HEB[dow]);
+}
+
 export function monthsInYear(hebYear) {
   return HDate.isLeapYear(hebYear) ? 13 : 12;
 }
@@ -13,13 +29,14 @@ function hebMonthName(hebMonth, hebYear) {
 }
 
 function eventType(ev) {
+
   const f = ev.getFlags();
-  if (f & flags.ROSH_CHODESH)    return 'rosh-chodesh';
+  if (f & flags.ROSH_CHODESH) return 'rosh-chodesh';
   if (f & flags.PARSHA_HASHAVUA) return 'parasha';
-  if (f & flags.CHAG)            return 'chag';
+  if (f & flags.CHAG) return 'chag';
   if (f & flags.MINOR_FAST || f & flags.MAJOR_FAST) return 'fast';
   if (f & flags.SPECIAL_SHABBAT) return 'special-shabbat';
-  if (f & flags.MODERN_HOLIDAY)  return 'modern';
+  if (f & flags.MODERN_HOLIDAY) return 'modern';
   return 'other';
 }
 
@@ -51,9 +68,9 @@ function buildEventMap(hebcalEvents) {
 function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGregYear, currentHebYear) {
   const allOccurrences = [
     {
-      hebYear:   currentHebYear,
-      gregYear:  currentGregYear,
-      date:      new HDate(hebDay, hebMonth, currentHebYear).greg(),
+      hebYear: currentHebYear,
+      gregYear: currentGregYear,
+      date: new HDate(hebDay, hebMonth, currentHebYear).greg(),
       isCurrent: true,
     },
   ];
@@ -64,7 +81,7 @@ function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGre
     if (hebDay > HDate.daysInMonth(hebMonth, y)) continue;
 
     const cand = new HDate(hebDay, hebMonth, y);
-    const cg   = cand.greg();
+    const cg = cand.greg();
 
     if (cg.getDate() === gregDay && cg.getMonth() + 1 === gregMonthNum) {
       allOccurrences.push({ hebYear: y, gregYear: cg.getFullYear(), date: cg, isCurrent: false });
@@ -75,16 +92,16 @@ function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGre
 
   return allOccurrences.map((occ, i) => {
     const prevOcc = i > 0 ? allOccurrences[i - 1] : null;
-    const diff    = prevOcc !== null ? occ.gregYear - prevOcc.gregYear : null;
-    const cg      = occ.date;
-    const dd      = String(cg.getDate()).padStart(2, '0');
-    const mm      = String(cg.getMonth() + 1).padStart(2, '0');
+    const diff = prevOcc !== null ? occ.gregYear - prevOcc.gregYear : null;
+    const cg = occ.date;
+    const dd = String(cg.getDate()).padStart(2, '0');
+    const mm = String(cg.getMonth() + 1).padStart(2, '0');
     const diffStr = diff !== null ? ` (${diff})` : '';
 
     return {
-      hebYear:   occ.hebYear,
+      hebYear: occ.hebYear,
       isCurrent: occ.isCurrent,
-      isPast:    occ.hebYear < currentHebYear,
+      isPast: occ.hebYear < currentHebYear,
       label: `${gematriya(hebDay)} ${hebMonthName(hebMonth, occ.hebYear)} ${gematriya(occ.hebYear, { limit: true })} ${dd}/${mm}/${occ.gregYear}${diffStr}`,
     };
   });
@@ -97,15 +114,16 @@ function findSameCombination(hebDay, hebMonth, gregDay, gregMonthNum, currentGre
  */
 export function getMonthData(hebYear, hebMonth) {
   const daysInMonth = HDate.daysInMonth(hebMonth, hebYear);
-  const firstHDate  = new HDate(1, hebMonth, hebYear);
-  const lastHDate   = new HDate(daysInMonth, hebMonth, hebYear);
+  const firstHDate = new HDate(1, hebMonth, hebYear);
+  const lastHDate = new HDate(daysInMonth, hebMonth, hebYear);
 
   const hebcalEvents = HebrewCalendar.calendar({
     start: firstHDate,
-    end:   lastHDate,
+    end: lastHDate,
     sedrot: true,
     il: true,
     noMinorHolidays: false,
+    noModern: true
   });
   const eventMap = buildEventMap(hebcalEvents);
 
@@ -122,9 +140,9 @@ export function getMonthData(hebYear, hebMonth) {
 
   // Leading cells (from previous Hebrew month)
   for (let i = startDow - 1; i >= 0; i--) {
-    const hd  = new HDate(daysInPrev - i, prevMonth, prevYear);
+    const hd = new HDate(daysInPrev - i, prevMonth, prevYear);
     const greg = hd.greg();
-    const iso  = greg.toISOString().slice(0, 10);
+    const iso = greg.toISOString().slice(0, 10);
     days.push({
       gregDate: greg, hdate: hd, iso,
       isOtherMonth: true,
@@ -137,14 +155,15 @@ export function getMonthData(hebYear, hebMonth) {
 
   // Current month days
   for (let n = 1; n <= daysInMonth; n++) {
-    const hd   = new HDate(n, hebMonth, hebYear);
+    const hd = new HDate(n, hebMonth, hebYear);
     const greg = hd.greg();
-    const iso  = greg.toISOString().slice(0, 10);
+    const iso = greg.toISOString().slice(0, 10);
     const matches = findSameCombination(
       n, hebMonth,
       greg.getDate(), greg.getMonth() + 1,
       greg.getFullYear(), hebYear
     );
+    const next10YearsWeekdays = findNext10YearsWeekdays(n, hebMonth, hebYear);
     days.push({
       gregDate: greg, hdate: hd, iso,
       isOtherMonth: false,
@@ -155,6 +174,7 @@ export function getMonthData(hebYear, hebMonth) {
         : gematriya(n),
       gregLabel: greg.getDate(),
       matches,
+      next10YearsWeekdays,
     });
   }
 
@@ -162,9 +182,9 @@ export function getMonthData(hebYear, hebMonth) {
   const totalCells = Math.ceil(days.length / 7) * 7;
   let t = 1;
   while (days.length < totalCells) {
-    const hd   = new HDate(t++, nextMonth, nextYear);
+    const hd = new HDate(t++, nextMonth, nextYear);
     const greg = hd.greg();
-    const iso  = greg.toISOString().slice(0, 10);
+    const iso = greg.toISOString().slice(0, 10);
     days.push({
       gregDate: greg, hdate: hd, iso,
       isOtherMonth: true,
@@ -179,42 +199,39 @@ export function getMonthData(hebYear, hebMonth) {
 }
 
 
-const DOW_NAMES_HEB  = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-const DOW_TO_LETTER  = ['א','ב','ג','ד','ה','ו','ז'];
-
 export function getYearInfo(hebYear) {
   const roshHashana = new HDate(1, 7, hebYear);
-  const rhDow       = roshHashana.greg().getDay(); // 0=ראשון
+  const rhDow = roshHashana.greg().getDay(); // 0=ראשון
 
-  const nextRH     = new HDate(1, 7, hebYear + 1);
+  const nextRH = new HDate(1, 7, hebYear + 1);
   const daysInYear = Math.round(
     (nextRH.greg().getTime() - roshHashana.greg().getTime()) / 86_400_000
   );
 
-  const isLeap       = HDate.isLeapYear(hebYear);
-  const regularDays  = isLeap ? 384 : 354;
+  const isLeap = HDate.isLeapYear(hebYear);
+  const regularDays = isLeap ? 384 : 354;
   const yearTypeChar =
     daysInYear < regularDays ? 'ח' :
-    daysInYear > regularDays ? 'ש' : 'כ';
+      daysInYear > regularDays ? 'ש' : 'כ';
   const yearTypeName =
     daysInYear < regularDays ? 'חסרה' :
-    daysInYear > regularDays ? 'שלמה' : 'כסדרה';
+      daysInYear > regularDays ? 'שלמה' : 'כסדרה';
 
   const passover = new HDate(15, 1, hebYear);
-  const passDow  = passover.greg().getDay();
+  const passDow = passover.greg().getDay();
 
   return {
-    typeCode:    DOW_TO_LETTER[rhDow] + yearTypeChar + DOW_TO_LETTER[passDow],
+    typeCode: DOW_TO_LETTER[rhDow] + yearTypeChar + DOW_TO_LETTER[passDow],
     isLeap,
     daysInYear,
     yearTypeName,
-    rhDowName:   DOW_NAMES_HEB[rhDow],
+    rhDowName: DOW_NAMES_HEB[rhDow],
     passDowName: DOW_NAMES_HEB[passDow],
   };
 }
 
 export function getHebrewMonthAndYearLabel(hebYear, hebMonth) {
   const monthName = hebMonthName(hebMonth, hebYear);
-  const yearStr   = gematriya(hebYear, { limit: true });
+  const yearStr = gematriya(hebYear, { limit: true });
   return `${monthName} ${yearStr}`;
 }
