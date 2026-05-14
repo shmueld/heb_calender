@@ -502,6 +502,11 @@ body {
   border-top: 1px dashed #e0e0e0;
 }
 
+.match-weekdays {
+  color: #555;
+  font-style: italic;
+}
+
 /* ── Mobile detail panel ─────────────────────────────── */
 
 /* matches-section hidden below 1900px — use detail panel instead */

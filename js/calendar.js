@@ -6,9 +6,9 @@ const { HebrewCalendar, HDate, flags, gematriya, Locale } = window.hebcal;
 const DOW_NAMES_HEB = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 const DOW_TO_LETTER = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז'];
 
-function findNext10YearsWeekdays(hebDay, hebMonth, currentHebYear) {
+function findNext100YearsWeekdays(hebDay, hebMonth, currentHebYear) {
   const weekdays = new Set();
-  for (let y = currentHebYear + 1; y <= currentHebYear + 19; y++) {
+  for (let y = currentHebYear + 1; y <= currentHebYear + 100; y++) {
     if (hebMonth === 13 && !HDate.isLeapYear(y)) continue;
     if (hebDay > HDate.daysInMonth(hebMonth, y)) continue;
     const hd = new HDate(hebDay, hebMonth, y);
@@ -163,7 +163,7 @@ export function getMonthData(hebYear, hebMonth) {
       greg.getDate(), greg.getMonth() + 1,
       greg.getFullYear(), hebYear
     );
-    const next10YearsWeekdays = findNext10YearsWeekdays(n, hebMonth, hebYear);
+    const next100YearsWeekdays = findNext100YearsWeekdays(n, hebMonth, hebYear);
     days.push({
       gregDate: greg, hdate: hd, iso,
       isOtherMonth: false,
@@ -174,7 +174,7 @@ export function getMonthData(hebYear, hebMonth) {
         : gematriya(n),
       gregLabel: greg.getDate(),
       matches,
-      next10YearsWeekdays,
+      next100YearsWeekdays,
     });
   }
 

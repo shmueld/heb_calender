@@ -45,17 +45,30 @@ function createDayCell(day, isToday) {
   // Same-combination matches (desktop — shown inline)
   const hasOtherMatches = !day.isOtherMonth && day.matches &&
     day.matches.some(m => !m.isCurrent);
-  if (hasOtherMatches) {
+  if (hasOtherMatches || (day.next100YearsWeekdays && day.next100YearsWeekdays.length > 0 && !day.isOtherMonth)) {
     const section = document.createElement('div');
     section.className = 'matches-section';
 
-    for (const m of day.matches) {
-      const el = document.createElement('div');
-      el.className = m.isCurrent ? 'match-item match-current'
-        : m.isPast ? 'match-item match-past'
-          : 'match-item match-future';
-      el.textContent = m.label;
-      section.appendChild(el);
+    if (hasOtherMatches) {
+      for (const m of day.matches) {
+        const el = document.createElement('div');
+        el.className = m.isCurrent ? 'match-item match-current'
+          : m.isPast ? 'match-item match-past'
+            : 'match-item match-future';
+        el.textContent = m.label;
+        section.appendChild(el);
+      }
+    }
+
+    if (day.next100YearsWeekdays && day.next100YearsWeekdays.length > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'match-sep';
+      section.appendChild(sep);
+
+      const weekdaysEl = document.createElement('div');
+      weekdaysEl.className = 'match-item match-weekdays';
+      weekdaysEl.textContent = `ימים: ${day.next100YearsWeekdays.join(', ')}`;
+      section.appendChild(weekdaysEl);
     }
 
     cell.appendChild(section);
@@ -106,14 +119,14 @@ function populateDetailPanel(panel, day, onClose) {
     }
   }
 
-  if (day.next10YearsWeekdays && day.next10YearsWeekdays.length > 0) {
+  if (day.next100YearsWeekdays && day.next100YearsWeekdays.length > 0) {
     const weekdaysDiv = document.createElement('div');
     weekdaysDiv.className = 'detail-weekdays';
     weekdaysDiv.style.marginTop = '16px';
     weekdaysDiv.style.paddingTop = '12px';
     weekdaysDiv.style.borderTop = '1px solid var(--border-color, #ccc)';
     weekdaysDiv.style.fontWeight = '500';
-    weekdaysDiv.textContent = `ב-19 השנים הקרובות התאריך יחול בימים: ${day.next10YearsWeekdays.join(', ')}`;
+    weekdaysDiv.textContent = `ב-100 השנים הקרובות התאריך יחול בימים: ${day.next100YearsWeekdays.join(', ')}`;
     panel.appendChild(weekdaysDiv);
   }
 }
